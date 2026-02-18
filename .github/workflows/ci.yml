@@ -39,6 +39,7 @@ jobs:
 
       - name: Build + Test + Shadow JAR
         env:
+          MICRONAUT_TEST_RESOURCES_ENABLED: "false"
           MICRONAUT_DATASOURCES_DEFAULT_URL: jdbc:mysql://127.0.0.1:3306/mn_playground
           MICRONAUT_DATASOURCES_DEFAULT_USERNAME: root
           MICRONAUT_DATASOURCES_DEFAULT_PASSWORD: password
