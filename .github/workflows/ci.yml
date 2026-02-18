@@ -20,7 +20,7 @@ jobs:
           --health-cmd="mysqladmin ping -h 127.0.0.1 -ppassword"
           --health-interval=5s
           --health-timeout=3s
-          --health-retries=20
+          --health-retries=30
 
     steps:
       - name: Checkout
@@ -37,18 +37,27 @@ jobs:
         with:
           gradle-version: "8.8"
 
-      - name: Build + Test + Shadow JAR
+      - name: Wait for MySQL to be ready
+        run: |
+          for i in {1..40}; do
+            mysqladmin ping -h 127.0.0.1 -ppassword && exit 0
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+          echo "MySQL did not become ready in time" && exit 1
+
+      - name: Build + Test + Shadow JAR (CI DB, no Test Resources)
         env:
-          MICRONAUT_TEST_RESOURCES_ENABLED: "false"
           MICRONAUT_DATASOURCES_DEFAULT_URL: jdbc:mysql://127.0.0.1:3306/mn_playground
           MICRONAUT_DATASOURCES_DEFAULT_USERNAME: root
           MICRONAUT_DATASOURCES_DEFAULT_PASSWORD: password
         run: |
-          gradle clean test shadowJar
+          gradle clean test shadowJar \
+            -x internalStartTestResourcesService \
+            -x internalStopTestResourcesService
 
       - name: Upload JAR artifact
         uses: actions/upload-artifact@v4
         with:
           name: micronaut-crud-jar
           path: build/libs/*.jar
-
