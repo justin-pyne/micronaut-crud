@@ -2,7 +2,7 @@ name: Java CI (Micronaut)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "jdbc" ]
 
 jobs:
   build:
