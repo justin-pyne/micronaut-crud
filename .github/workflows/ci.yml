@@ -1,0 +1,38 @@
+name: Java CI (Micronaut)
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: mn_playground
+        ports:
+          - 3306:3306
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Build (tests run here)
+        env:
+          MICRONAUT_DATASOURCES_DEFAULT_URL: jdbc:mysql://127.0.0.1:3306/mn_playground
+          MICRONAUT_DATASOURCES_DEFAULT_USERNAME: root
+          MICRONAUT_DATASOURCES_DEFAULT_PASSWORD: password
+        run: |
+          chmod +x ./gradlew
+          ./gradlew clean build shadowJar
+
