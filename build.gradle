@@ -72,5 +72,13 @@ tasks.named("dockerfileNative") {
     jdkVersion = "21"
 }
 
+// Disable Micronaut Test Resources in CI (GitHub Actions sets CI=true)
+if (System.getenv("CI") != null) {
+    micronaut {
+        testResources {
+            enabled.set(false)
+        }
+    }
+}
 
 
